@@ -10,40 +10,61 @@
 
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
+import moment from 'moment';
 
-import { fetchPosts } from '../actions';
+import { fetchPosts, selectBlog } from '../actions';
 import Input from '../../components/Input';
 import Layout from '../../components/Layout';
+import {debounce} from '../helpers';
+
 import s from './styles.css';
 
+const debounceWait = 1000;
 
 class HomePage extends React.Component {
+  static propTypes = {
+    selectedBlog: PropTypes.string.isRequired,
+    posts: PropTypes.array.isRequired,
+    lastFetched: PropTypes.number,
+    isFetching: PropTypes.bool.isRequired,
+    lastUpdated: PropTypes.number,
+    dispatch: PropTypes.func.isRequired
+  }
+
   constructor(props) {
     super(props);
+
     this.handleRefreshClick = this.handleRefreshClick.bind(this);
+    this.selectBlog = this.selectBlog.bind(this);
   }
 
   componentDidMount() {
     document.title = 'Tumblrr';
     this.fetchPosts(this.props);
+    this.debounceFetch = debounce(this.fetchPosts, debounceWait);
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.selectedBlog !== this.props.selectedBlog) {
-      this.fetchPosts(nextProps);
+      this.debounceFetch(nextProps);
     }
   }
 
   render() {
     return (
       <Layout className={s.content}>
-        <Input className={s.input} placeholder="tumblr name" />
+        <Input
+          className={s.input}
+          value={this.props.selectedBlog}
+          onChange={this.selectBlog}
+          placeholder="enter a blog"
+        />
         <ul className={s.list}>
           {this.props.posts.map((post, i) =>
             <li className={s.post} key={i}>
               {post.photos.map(this.renderPhoto)}
               <span className={s.title}>
-                <a href={post.post_url}>{post.summary}</a> by {post.blog_name}
+                <a href={post.post_url}>{post.summary}</a> on {moment(post.date).format("Do MMM YYYY")}
               </span>
             </li>
           )}
@@ -70,28 +91,21 @@ class HomePage extends React.Component {
     const { dispatch, selectedBlog, lastFetched } = props;
     dispatch(fetchPosts(selectedBlog, lastFetched));
   }
+
+  selectBlog(newBlog) {
+    this.propsdispatch(selectBlog(newBlog));
+  }
 }
 
-HomePage.propTypes = {
-  selectedBlog: PropTypes.string.isRequired,
-  posts: PropTypes.array.isRequired,
-  lastFetched: PropTypes.number,
-  isFetching: PropTypes.bool.isRequired,
-  lastUpdated: PropTypes.number,
-  dispatch: PropTypes.func.isRequired
-};
-
 function mapStateToProps(state) {
-  const { selectedBlog, postsByBlog } = state;
+  const { isFetching = false, selectedBlog, postsByBlog } = state;
   const {
-    isFetching,
     lastUpdated,
     items: posts,
     blogInfo,
     lastFetched,
     totalPosts
   } = postsByBlog[selectedBlog] || {
-    isFetching: true,
     items: []
   };
 
@@ -107,4 +121,3 @@ function mapStateToProps(state) {
 }
 
 export default connect(mapStateToProps)(HomePage);
-
