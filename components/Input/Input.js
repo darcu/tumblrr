@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import PropTypes from 'prop-types';
+import React from 'react';
 import cx from 'classnames';
 
 
@@ -17,30 +18,18 @@ class Input extends React.Component {
         value={this.props.value}
       />
     );
-    // return <a href={typeof to === 'string' ? to : history.createHref(to)} {...props} onClick={this.handleClick} />;
   }
 
   onChange(ev) {
-    // const value = this.value();
-    // if (this.props.maxLength && value.length > this.props.maxLength) {
-    //   this.setState({error: true});
-    //   this.action.runAfter(ACTION_DELAY);
-    //   ev.preventDefault();
-    //   return;
-    // }
-    console.log("e", ev.target.value);
-
-    // set state value
-
+    this.props.onChange(ev.target.value);
   }
 }
 
 Input.propTypes = {
-  // to: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
   className: PropTypes.string,
   placeholder: PropTypes.string,
   value: PropTypes.string,
-  onClick: PropTypes.func,
+  onChange: PropTypes.func,
 };
 
 export default Input;

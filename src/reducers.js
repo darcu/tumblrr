@@ -5,7 +5,7 @@ import {
   RECEIVE_POSTS
 } from "./actions";
 
-function selectedBlog(state = "benhaist.tumblr.com", action) {
+function selectedBlog(state = "benhaist", action) {
   switch (action.type) {
     case SELECT_BLOG:
       return action.blog;
@@ -15,18 +15,12 @@ function selectedBlog(state = "benhaist.tumblr.com", action) {
 }
 
 function posts(state = {
-  isFetching: false,
   items: [],
 }, action) {
   switch (action.type) {
-    case REQUEST_POSTS:
-      return Object.assign({}, state, {
-        isFetching: true
-      });
     case RECEIVE_POSTS:
       const lastFetched = state.lastFetched || 0;
       return Object.assign({}, state, {
-        isFetching: false,
         blogInfo: action.blogInfo,
         items: state.items.concat(action.posts),
         lastFetched: lastFetched + action.posts.length,
@@ -41,9 +35,13 @@ function posts(state = {
 function postsByBlog(state = {}, action) {
   switch (action.type) {
     case RECEIVE_POSTS:
+      return Object.assign({}, state, {
+        [action.blog]: posts(state[action.blog], action),
+        isFetching: false
+      });
     case REQUEST_POSTS:
       return Object.assign({}, state, {
-        [action.blog]: posts(state[action.blog], action)
+        isFetching: true
       });
     default:
       return state;
