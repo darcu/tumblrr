@@ -27,12 +27,13 @@ let routes = require('./routes.json').default; // Loaded with utils/routes-loade
 const container = document.getElementById('container');
 
 function renderComponent(component) {
-  ReactDOM.render(
+  const provider = (
     <Provider store={store}>
       {component}
-    </Provider>,
-    container
+    </Provider>
   );
+
+  ReactDOM.render(provider, container);
 }
 
 // Find and render a web page matching the current URL path,

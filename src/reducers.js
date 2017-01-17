@@ -1,9 +1,11 @@
 import { combineReducers } from "redux";
+
 import {
   SELECT_BLOG,
   REQUEST_POSTS,
   RECEIVE_POSTS
 } from "./actions";
+
 
 function selectedBlog(state = "benhaist", action) {
   switch (action.type) {

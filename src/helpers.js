@@ -1,3 +1,5 @@
+
+
 function debounce(func, wait, immediate) {
   let timeout;
   return function(...args) {
@@ -42,7 +44,22 @@ function jsonp(url) {
   });
 }
 
-export {
-  debounce,
-  jsonp
+
+const debounceWait = 1000;
+
+const tumblrMaxPage = 10;
+const key = "4OMa4YDObLv8WC3YqoKZO1SPIgLEQDVIUMgOtoOh6IFFvF3cI9";
+
+const postsUrl = (blog, offset, limit = tumblrMaxPage) => {
+  return `https://api.tumblr.com/v2/blog/${blog}/posts/photo?api_key=${key}&offset=${offset}&limit=${limit}`;
 };
+
+
+export async function fetchPosts(blog, offset = 0) {
+  return function() {
+    return jsonp(postsUrl(blog, offset)).then((blogData) => ({ blog, blogData })).catch((e) => console.log("err", e));
+  };
+}
+
+export const debouncedFetchPosts = debounce(fetchPosts, debounceWait);
+

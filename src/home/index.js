@@ -8,18 +8,16 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import React, { PropTypes } from 'react';
+import PropTypes from 'prop-types';
+import React from 'react';
 import { connect } from 'react-redux';
 import moment from 'moment';
 
-import { fetchPosts, selectBlog } from '../actions';
-import Input from '../../components/Input';
+import { requestPosts } from '../actions';
 import Layout from '../../components/Layout';
-import {debounce} from '../helpers';
 
 import s from './styles.css';
 
-const debounceWait = 1000;
 
 class HomePage extends React.Component {
   static propTypes = {
@@ -33,32 +31,18 @@ class HomePage extends React.Component {
 
   constructor(props) {
     super(props);
-
     this.handleRefreshClick = this.handleRefreshClick.bind(this);
-    this.selectBlog = this.selectBlog.bind(this);
   }
 
   componentDidMount() {
+    // FIXME find a better place
     document.title = 'Tumblrr';
-    this.fetchPosts(this.props);
-    this.debounceFetch = debounce(this.fetchPosts, debounceWait);
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selectedBlog !== this.props.selectedBlog) {
-      this.debounceFetch(nextProps);
-    }
+    this.requestPosts();
   }
 
   render() {
     return (
       <Layout className={s.content}>
-        <Input
-          className={s.input}
-          value={this.props.selectedBlog}
-          onChange={this.selectBlog}
-          placeholder="enter a blog"
-        />
         <ul className={s.list}>
           {this.props.posts.map((post, i) =>
             <li className={s.post} key={i}>
@@ -77,23 +61,19 @@ class HomePage extends React.Component {
     );
   }
 
-  renderPhoto(photo) {
+  renderPhoto = (photo) => {
     const url = photo.original_size.url;
     return <img key={url} className={s.post_img} alt={photo.caption} src={url} />;
   }
 
-  handleRefreshClick(e) {
+  requestPosts = () => {
+    const { selectedBlog, lastFetched } = this.props;
+    requestPosts(selectedBlog, lastFetched);
+  }
+
+  handleRefreshClick = (e) => {
     e.preventDefault();
-    this.fetchPosts(this.props);
-  }
-
-  fetchPosts(props) {
-    const { dispatch, selectedBlog, lastFetched } = props;
-    dispatch(fetchPosts(selectedBlog, lastFetched));
-  }
-
-  selectBlog(newBlog) {
-    this.propsdispatch(selectBlog(newBlog));
+    this.requestPosts();
   }
 }
 

@@ -66,18 +66,16 @@ function resolve(routes, context) {
         route.load(),
         ...keys.map(key => {
           const query = route.data[key];
-          const method = query.substring(0, query.indexOf(' ')); // GET
-          let url = query.substr(query.indexOf(' ') + 1);      // /api/tasks/$id
+          const method = query.substring(0, query.indexOf(' '));  // GET
+          let url = query.substr(query.indexOf(' ') + 1);         // /api/tasks/$id
           // TODO: Optimize
-          Object.keys(params).forEach((k) => {
-            url = url.replace(`${k}`, params[k]);
-          });
+          Object.keys(params).forEach(k => url = url.replace(`${k}`, params[k]));
 
           return fetch(url, {method}).then(resp => {
             try {
               const js = resp.json();
               return js;
-            } catch(e) {
+            } catch (e) {
               return {};
             }
           });
