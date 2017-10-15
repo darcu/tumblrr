@@ -54,7 +54,7 @@ function resolve(routes, context) {
       const keys = Object.keys(route.data);
       return Promise.all([
         route.load(),
-        ...keys.map(key => {
+        ...keys.map((key) => {
           const query = route.data[key];
           const method = query.substring(0, query.indexOf(' ')); // GET
           let url = query.substr(query.indexOf(' ') + 1);      // /api/tasks/$id
@@ -63,7 +63,7 @@ function resolve(routes, context) {
             url = url.replace(`${k}`, params[k]);
           });
 
-          return fetch(url, {method}).then(resp => {
+          return fetch(url, {method}).then((resp) => {
             try {
               const js = resp.json();
               return js;
@@ -78,7 +78,7 @@ function resolve(routes, context) {
       });
     }
 
-    return route.load().then(Page => <Page route={{ ...route, params }} error={context.error} />);
+    return route.load().then((Page) => <Page route={{ ...route, params }} error={context.error} />);
   }
 
   const error = new Error('Page not found');
